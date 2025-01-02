@@ -1,4 +1,5 @@
 defmodule WttjWeb.Assets do
+  @moduledoc false
   use WttjWeb, :html
 
   if Mix.env() == :prod do

@@ -1,4 +1,5 @@
 defmodule Wttj.Candidates.Candidate do
+  @moduledoc false
   use Ecto.Schema
   import Ecto.Changeset
 
