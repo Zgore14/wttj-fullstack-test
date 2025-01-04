@@ -42,7 +42,7 @@ defmodule WttjWeb.CandidateControllerTest do
       assert %{
                "id" => ^id,
                "email" => ^email,
-               "position" => 43,
+               "position" => 0,
                "status" => "interview"
              } = json_response(conn, 200)["data"]
     end

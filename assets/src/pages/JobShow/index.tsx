@@ -1,15 +1,21 @@
 import { useParams } from 'react-router-dom'
-import { useJob, useCandidates } from '../../hooks'
+import { useJob, useCandidates, useUpdateCandidate } from '../../hooks'
 import { Text } from '@welcome-ui/text'
 import { Flex } from '@welcome-ui/flex'
 import { Box } from '@welcome-ui/box'
-import { useMemo } from 'react'
-import { Candidate } from '../../api'
+import { useEffect, useMemo } from 'react'
+import { Candidate, CandidateStatus } from '../../api'
 import CandidateCard from '../../components/Candidate'
 import { Badge } from '@welcome-ui/badge'
+import CandidateBox from '../../components/CandidateBox'
+import { monitorForElements } from  '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 
-type Statuses = 'new' | 'interview' | 'hired' | 'rejected'
-const COLUMNS: Statuses[] = ['new', 'interview', 'hired', 'rejected']
+const COLUMNS: CandidateStatus[] = [
+  'new',
+  'interview',
+  'hired',
+  'rejected'
+]
 
 interface SortedCandidates {
   new?: Candidate[]
@@ -22,6 +28,8 @@ function JobShow() {
   const { jobId } = useParams()
   const { job } = useJob(jobId)
   const { candidates } = useCandidates(jobId)
+  const updateCandidateMutation = useUpdateCandidate(jobId)
+
 
   const sortedCandidates = useMemo(() => {
     if (!candidates) return {}
@@ -31,6 +39,28 @@ function JobShow() {
       return acc
     }, {})
   }, [candidates])
+
+  useEffect(() => {
+    return monitorForElements({
+        onDrop({ source, location }) {
+          const destination = location.current.dropTargets[0];
+     
+          if (!destination) {
+              // if dropped outside of any drop targets
+              return;
+          }
+
+          const draggedCandidate: Candidate = source.data.candidate as Candidate;
+          const newStatus: CandidateStatus = destination.data.statusColumn as CandidateStatus;
+
+          if (!jobId) return
+          if (!draggedCandidate) return
+
+          // const candidate = updateCandidate(jobId, draggedCandidate.id.toString(), { status: newStatus })
+          updateCandidateMutation.mutate({ candidateId: draggedCandidate.id.toString(), candidate: { status: newStatus, position: draggedCandidate.position} })
+        },
+    });
+  }, [candidates, jobId, updateCandidateMutation]);
 
   return (
     <>
@@ -43,15 +73,7 @@ function JobShow() {
       <Box p={20}>
         <Flex gap={10}>
           {COLUMNS.map(column => (
-            <Box
-              w={300}
-              border={1}
-              backgroundColor="white"
-              borderColor="neutral-30"
-              borderRadius="md"
-              overflow="hidden"
-              key={column}
-            >
+            <CandidateBox key={column} statusColumn={column} >
               <Flex
                 p={10}
                 borderBottom={1}
@@ -69,7 +91,7 @@ function JobShow() {
                   <CandidateCard candidate={candidate} key={candidate.id}/>
                 ))}
               </Flex>
-            </Box>
+            </CandidateBox>
           ))}
         </Flex>
       </Box>

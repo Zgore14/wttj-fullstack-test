@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query'
-import { getCandidates, getJob, getJobs } from '../api'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { getCandidates, getJob, getJobs, updateCandidate, CandidateParams} from '../api'
 
 export const useJobs = () => {
   const { isLoading, error, data } = useQuery({
@@ -28,4 +28,17 @@ export const useCandidates = (jobId?: string) => {
   })
 
   return { isLoading, error, candidates: data }
+}
+
+export const useUpdateCandidate = (jobId?: string) => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ candidateId, candidate }: { candidateId: string, candidate: CandidateParams }) => 
+      updateCandidate(jobId, candidateId, candidate),
+    onSuccess: () => {
+      // Invalidate and refetch candidates list after successful update
+      queryClient.invalidateQueries(['candidates', jobId])
+    }
+  })
 }

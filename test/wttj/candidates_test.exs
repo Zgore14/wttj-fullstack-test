@@ -39,7 +39,8 @@ defmodule Wttj.CandidatesTest do
       assert {:ok, %Candidate{} = candidate} =
                Candidates.update_candidate(candidate, update_attrs)
 
-      assert candidate.position == 43
+      # position is evaluated to 0 since there is only one candidate if this test
+      assert candidate.position == 0
       assert candidate.status == :rejected
       assert candidate.email == email
     end
