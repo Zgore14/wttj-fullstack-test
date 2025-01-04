@@ -1,15 +1,23 @@
 import { useParams } from 'react-router-dom'
-import { useJob, useCandidates } from '../../hooks'
+import { useJob, useCandidates, useUpdateCandidate } from '../../hooks'
 import { Text } from '@welcome-ui/text'
 import { Flex } from '@welcome-ui/flex'
 import { Box } from '@welcome-ui/box'
-import { useMemo } from 'react'
-import { Candidate } from '../../api'
+import { useEffect, useMemo } from 'react'
+import { Candidate, CandidateStatus } from '../../api'
 import CandidateCard from '../../components/Candidate'
 import { Badge } from '@welcome-ui/badge'
+import CandidateBox from '../../components/CandidateBox'
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
+import { Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 
-type Statuses = 'new' | 'interview' | 'hired' | 'rejected'
-const COLUMNS: Statuses[] = ['new', 'interview', 'hired', 'rejected']
+
+const candidateColumns: CandidateStatus[] = [
+  'new',
+  'interview',
+  'hired',
+  'rejected'
+]
 
 interface SortedCandidates {
   new?: Candidate[]
@@ -22,6 +30,8 @@ function JobShow() {
   const { jobId } = useParams()
   const { job } = useJob(jobId)
   const { candidates } = useCandidates(jobId)
+  const updateCandidateMutation = useUpdateCandidate(jobId)
+
 
   const sortedCandidates = useMemo(() => {
     if (!candidates) return {}
@@ -31,6 +41,43 @@ function JobShow() {
       return acc
     }, {})
   }, [candidates])
+
+  useEffect(() => {
+    return monitorForElements({
+      onDrop({ source, location }) {
+        const destination = location.current.dropTargets[0];
+
+        if (!destination) {
+          // if dropped outside of any drop targets
+          return;
+        }
+
+        const draggedCandidate: Candidate = source.data.candidate as Candidate;
+        let newStatus: CandidateStatus;
+        let newPosition: number;
+
+        if (!jobId) return
+        if (!draggedCandidate) return
+
+        if ('columnId' in destination.data) {
+          // candidate is being drag to a column
+          newStatus = destination.data.columnId as CandidateStatus;
+          newPosition = (sortedCandidates[newStatus] || []).length;
+
+        } else {
+          // candidate is being drag to a candidate
+
+          const edge: Edge | null = extractClosestEdge(destination.data);
+          if (edge !== 'top' && edge !== 'bottom') return
+
+          newStatus = destination.data.status as CandidateStatus;
+          newPosition = Math.max(destination.data.position as number + (edge === 'top' ? -1 : 1), 0);
+        }
+
+        updateCandidateMutation.mutate({ candidateId: draggedCandidate.id.toString(), candidate: { status: newStatus, position: newPosition } })
+      },
+    });
+  }, [candidates, jobId, updateCandidateMutation]);
 
   return (
     <>
@@ -42,16 +89,8 @@ function JobShow() {
 
       <Box p={20}>
         <Flex gap={10}>
-          {COLUMNS.map(column => (
-            <Box
-              w={300}
-              border={1}
-              backgroundColor="white"
-              borderColor="neutral-30"
-              borderRadius="md"
-              overflow="hidden"
-              key={column}
-            >
+          {candidateColumns.map(column => (
+            <CandidateBox key={column} columnId={column}>
               <Flex
                 p={10}
                 borderBottom={1}
@@ -66,10 +105,10 @@ function JobShow() {
               </Flex>
               <Flex direction="column" p={10} pb={0}>
                 {sortedCandidates[column]?.map((candidate: Candidate) => (
-                  <CandidateCard candidate={candidate} key={candidate.id}/>
+                  <CandidateCard candidate={candidate} key={candidate.id} />
                 ))}
               </Flex>
-            </Box>
+            </CandidateBox>
           ))}
         </Flex>
       </Box>
