@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { useJob, useCandidates, useUpdateCandidate } from '../../hooks'
+import { useJob, useCandidates, useUpdateCandidate, useChannel } from '../../hooks'
 import { Text } from '@welcome-ui/text'
 import { Flex } from '@welcome-ui/flex'
 import { Box } from '@welcome-ui/box'
@@ -10,6 +10,7 @@ import { Badge } from '@welcome-ui/badge'
 import CandidateBox from '../../components/CandidateBox'
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { useQueryClient } from 'react-query'
 
 
 const candidateColumns: CandidateStatus[] = [
@@ -31,7 +32,8 @@ function JobShow() {
   const { job } = useJob(jobId)
   const { candidates } = useCandidates(jobId)
   const updateCandidateMutation = useUpdateCandidate(jobId)
-
+  const queryClient = useQueryClient()
+  const [candidateChannel] = useChannel(`candidates:${jobId}`);
 
   const sortedCandidates = useMemo(() => {
     if (!candidates) return {}
@@ -41,6 +43,21 @@ function JobShow() {
       return acc
     }, {})
   }, [candidates])
+
+  // manage real time updates by other users
+  useEffect(() => {
+    if (!candidateChannel) return
+    if (!queryClient) return
+
+    candidateChannel.on("candidate_updated", (updatedCandidate) => {
+      console.log("Candidate Updated:", updatedCandidate);
+
+      queryClient.invalidateQueries(['candidates', jobId])
+    });
+    return () => {
+      candidateChannel.off("candidate_updated");
+    }
+  }, [candidateChannel, candidates, jobId, queryClient]);
 
   useEffect(() => {
     return monitorForElements({
@@ -77,10 +94,11 @@ function JobShow() {
         updateCandidateMutation.mutate({ candidateId: draggedCandidate.id.toString(), candidate: { status: newStatus, position: newPosition } })
       },
     });
-  }, [candidates, jobId, updateCandidateMutation]);
+  }, [candidates, jobId, sortedCandidates, updateCandidateMutation]);
 
   return (
     <>
+
       <Box backgroundColor="neutral-70" p={20} alignItems="center">
         <Text variant="h5" color="white" m={0}>
           {job?.name}

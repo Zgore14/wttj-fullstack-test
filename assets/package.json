@@ -13,6 +13,7 @@
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.4.0",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
+    "@types/phoenix": "^1.6.6",
     "@welcome-ui/badge": "^6.0.0",
     "@welcome-ui/box": "^6.0.0",
     "@welcome-ui/card": "^6.0.0",
@@ -22,6 +23,7 @@
     "@welcome-ui/tag": "^6.0.0",
     "@welcome-ui/text": "^6.0.0",
     "@xstyled/styled-components": "^4.0.0",
+    "phoenix": "^1.7.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-query": "^3.39.3",

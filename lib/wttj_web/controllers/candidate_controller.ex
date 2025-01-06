@@ -6,6 +6,9 @@ defmodule WttjWeb.CandidateController do
 
   action_fallback WttjWeb.FallbackController
 
+  @candidates_topic "candidates"
+  @candidate_updated_event "candidate_updated"
+
   def index(conn, %{"job_id" => job_id}) do
     candidates = Candidates.list_candidates(job_id)
     render(conn, :index, candidates: candidates)
@@ -21,6 +24,16 @@ defmodule WttjWeb.CandidateController do
 
     with {:ok, %Candidate{} = candidate} <-
            Candidates.update_candidate(candidate, candidate_params) do
+      WttjWeb.Endpoint.broadcast(
+        "#{@candidates_topic}:#{job_id}",
+        @candidate_updated_event,
+        %{
+          id: candidate.id,
+          position: candidate.position,
+          status: candidate.status
+        }
+      )
+
       render(conn, :show, candidate: candidate)
     end
   end
