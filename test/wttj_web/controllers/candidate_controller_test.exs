@@ -1,5 +1,6 @@
 defmodule WttjWeb.CandidateControllerTest do
   use WttjWeb.ConnCase
+  use WttjWeb.ChannelCase
 
   import Wttj.JobsFixtures
   import Wttj.CandidatesFixtures
@@ -50,6 +51,37 @@ defmodule WttjWeb.CandidateControllerTest do
     test "renders errors when data is invalid", %{conn: conn, candidate: candidate, job: job} do
       conn = put(conn, ~p"/api/jobs/#{job}/candidates/#{candidate}", candidate: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "broadcasts updated candidate", %{conn: conn, job: job} do
+      candidate = candidate_fixture(%{job_id: job.id, status: :new, position: 0})
+
+      # add other candidates to see correct position update
+      candidate_fixture(%{job_id: job.id, status: :interview, position: 0})
+      candidate_fixture(%{job_id: job.id, status: :interview, position: 1})
+
+      job_id = candidate.job_id
+      new_position = 1
+      new_status = "interview"
+
+      @endpoint.subscribe("candidates:#{job_id}")
+
+      update_params = %{"position" => new_position, "status" => new_status}
+
+      conn =
+        patch(conn, ~p"/api/jobs/#{job_id}/candidates/#{candidate.id}", candidate: update_params)
+
+      assert %{"data" => %{"id" => id, "position" => ^new_position, "status" => ^new_status}} =
+               json_response(conn, 200)
+
+      # converting to atom is necessary for comparison with the broadcasted data
+      new_status = String.to_existing_atom(new_status)
+
+      assert_broadcast "candidate_updated", %{
+        id: ^id,
+        position: ^new_position,
+        status: ^new_status
+      }
     end
   end
 
