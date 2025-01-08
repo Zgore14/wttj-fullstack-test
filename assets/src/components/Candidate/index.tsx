@@ -1,7 +1,7 @@
 import { Card } from '@welcome-ui/card'
 import { Candidate } from '../../api'
 import { useEffect, useRef, useState } from 'react'
-import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
 import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
 import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 
