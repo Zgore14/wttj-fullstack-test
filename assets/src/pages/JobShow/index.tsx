@@ -9,7 +9,7 @@ import CandidateCard from '../../components/Candidate'
 import { Badge } from '@welcome-ui/badge'
 import CandidateBox from '../../components/CandidateBox'
 import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-import { Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { Edge, extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge'
 import { useQueryClient } from 'react-query'
 
 
@@ -33,7 +33,7 @@ function JobShow() {
   const { candidates } = useCandidates(jobId)
   const updateCandidateMutation = useUpdateCandidate(jobId)
   const queryClient = useQueryClient()
-  const [candidateChannel] = useChannel(`candidates:${jobId}`);
+  const [candidateChannel] = useChannel(`candidates:${jobId}`)
 
   const sortedCandidates = useMemo(() => {
     if (!candidates) return {}
@@ -50,51 +50,51 @@ function JobShow() {
     if (!queryClient) return
 
     candidateChannel.on("candidate_updated", (updatedCandidate) => {
-      console.log("Candidate Updated:", updatedCandidate);
+      console.log("Candidate Updated:", updatedCandidate)
 
       queryClient.invalidateQueries(['candidates', jobId])
-    });
+    })
     return () => {
-      candidateChannel.off("candidate_updated");
+      candidateChannel.off("candidate_updated")
     }
-  }, [candidateChannel, candidates, jobId, queryClient]);
+  }, [candidateChannel, candidates, jobId, queryClient])
 
   useEffect(() => {
     return monitorForElements({
       onDrop({ source, location }) {
-        const destination = location.current.dropTargets[0];
+        const destination = location.current.dropTargets[0]
 
         if (!destination) {
           // if dropped outside of any drop targets
-          return;
+          return
         }
 
-        const draggedCandidate: Candidate = source.data.candidate as Candidate;
-        let newStatus: CandidateStatus;
-        let newPosition: number;
+        const draggedCandidate: Candidate = source.data.candidate as Candidate
+        let newStatus: CandidateStatus
+        let newPosition: number
 
         if (!jobId) return
         if (!draggedCandidate) return
 
         if ('columnId' in destination.data) {
           // candidate is being drag to a column
-          newStatus = destination.data.columnId as CandidateStatus;
-          newPosition = (sortedCandidates[newStatus] || []).length;
+          newStatus = destination.data.columnId as CandidateStatus
+          newPosition = (sortedCandidates[newStatus] || []).length
 
         } else {
           // candidate is being drag to a candidate
 
-          const edge: Edge | null = extractClosestEdge(destination.data);
+          const edge: Edge | null = extractClosestEdge(destination.data)
           if (edge !== 'top' && edge !== 'bottom') return
 
-          newStatus = destination.data.status as CandidateStatus;
-          newPosition = Math.max(destination.data.position as number + (edge === 'top' ? -1 : 1), 0);
+          newStatus = destination.data.status as CandidateStatus
+          newPosition = Math.max(destination.data.position as number + (edge === 'top' ? -1 : 1), 0)
         }
 
         updateCandidateMutation.mutate({ candidateId: draggedCandidate.id.toString(), candidate: { status: newStatus, position: newPosition } })
       },
-    });
-  }, [candidates, jobId, sortedCandidates, updateCandidateMutation]);
+    })
+  }, [candidates, jobId, sortedCandidates, updateCandidateMutation])
 
   return (
     <>

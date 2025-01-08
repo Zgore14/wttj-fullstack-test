@@ -1,15 +1,15 @@
 import { Box } from '@welcome-ui/box'
 import { useEffect, useRef, useState } from 'react'
 import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter'
-import { CandidateStatus } from '../../api';
+import { CandidateStatus } from '../../api'
 
 function CandidateBox({ columnId, children }: { columnId: CandidateStatus, children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isDraggedOver, setIsDraggedOver] = useState(false);
+  const ref = useRef<HTMLDivElement>(null)
+  const [isDraggedOver, setIsDraggedOver] = useState(false)
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current
+    if (!el) return
 
     return dropTargetForElements({
       element: el,
@@ -17,8 +17,8 @@ function CandidateBox({ columnId, children }: { columnId: CandidateStatus, child
       onDragEnter: () => setIsDraggedOver(true),
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: () => setIsDraggedOver(false),
-    });
-  }, [columnId]);
+    })
+  }, [columnId])
 
   return (
     <Box
@@ -32,6 +32,6 @@ function CandidateBox({ columnId, children }: { columnId: CandidateStatus, child
     >
       {children}
     </Box>
-  );
+  )
 }
 export default CandidateBox
