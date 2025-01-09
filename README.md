@@ -23,6 +23,10 @@ For development:
 
 You can use [`asdf`](https://asdf-vm.com/guide/getting-started.html) to install the required versions of elixir, erlang and nodejs easily.
 
+> You might need the asdf plugins : https://github.com/asdf-vm/asdf-elixir, https://github.com/asdf-vm/asdf-erlang and https://github.com/asdf-vm/asdf-nodejs to install the required versions.
+
+> Also pay caution if you have already local installs without asdf, it might conflict.
+
 Simply run:
 
 ```bash
