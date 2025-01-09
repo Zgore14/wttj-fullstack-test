@@ -196,6 +196,10 @@ I updated the test suite to validate this addition.
 I wanted to have a clean way to use the WebSocket in the frontend, so I created a custom hook `useChannel` to handle the connection.
 Whenever a candidate is updated, the candidate list is re-fetched for any client consulting the same `JobShow` page (same Job ID) to ensure the columns are up-to-date when interacting with candidates.
 
+#### Further considerations
+- **Security**: if the project has to be deployed in production, and an authentication service is connected to the backend, it would be neccessary to also authenticate the WebSocket connection to ensure only authorized users can access the real-time updates. There is an example with the `Phoenix.Token` in [Phoenix documentation](https://hexdocs.pm/phoenix/channels.html#using-token-authentication).
+
+
 ### Step 3: Performance optimizations
 
 The main goal of this step was to optimize the application's performance to be able to handle large amount of candidates. In Step 1. and 2. I already implemented some optimizations and described it.
