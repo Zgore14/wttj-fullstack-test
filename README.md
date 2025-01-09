@@ -41,7 +41,7 @@ The script is available at the root of the project, under the name `start_demo.s
 To simplify the launch of the project, this script create a Docker container for the the database and launch all the required commands for the project.
 **But you still have to match all the requirements above before launching the demo (except PostgreSQL).**
 
-First make sure the script is exececutable by running:
+First make sure the script is executable by running:
 
 ```bash
 chmod +x start_demo.sh
@@ -144,18 +144,20 @@ I know at some point, on Step 3., I will have to deals with a lot of candidates.
 I also put the insertion within an `Ecto.Repo.transaction/2` to ensure the integrity of the candidate being updated and all the other being re-ordered thanks to the atomicity property of the transaction.
 In case of error or exception, every changes made inside the transaction will be rolled back.
 
-I finally updated the test suite to validate the new logic and ensure non-regression in the futur.
+I finally updated the test suite to validate the new logic and ensure non-regression in the future.
 
 
 #### Frontend
 Then, once the API was developed and tested, I worked on the frontend to display the data and allow the user to drag and drop candidates. 
 After some research, I was planning to use `react-beautiful-dnd`, but I quickly switched to its successor, [`pragmatic-drag-and-drop`](https://github.com/atlassian/pragmatic-drag-and-drop), due to deprecation. 
 
+I chosed `pragmatic-drag-and-drop` because it is well documented, has good review and is actively maintained on GitHub, and also it is owned by Atlassian; the company who develop Jira among other known products. So, I expect this library to have good support in the future.
+
 I focus my work on learning React and how to use the drag and drop library, without calling the API directly. Once everything was working as I wanted, I implemented the update Candidate API to have have persistance of the data and a fully working application.
 I also iterate on my code to have a clean way to manage the drag and drop logic and created a new Component `CandidateBox` for better readability and reusability.
 
 
-I used at maximum the same existing logic already developped in the project, like the React Hooks, in order to have a better coherence in the codebase.
+I used at maximum the same existing logic already developed in the project, like the React Hooks, in order to have a better coherence in the codebase.
 
 
 #### Challenges
@@ -215,12 +217,14 @@ On the Frontend when there is a change on the candidates list from the API call 
 It could would a leave to logic changed if implemented along pagination.
 
 #### Data Insertion And Fetching
-In the futur, if `Ecto.Repo.insert_all/3` tends to insert to much data at once, we could split the insertion into multiple chunks of fixed size.
+In the future, if `Ecto.Repo.insert_all/3` tends to insert to much data at once, we could split the insertion into multiple chunks of fixed size.
 
 
 We could also use caching strategies like Write-Behind to improve performance when updating candidates positions, but it would require more complex implementation and would be more difficult to maintain.
 
 To reduce the size of the payloads, we could use pagination when fetching candidates from the DB and returning it to the Frontend.
+
+Finally, database indexes could be optimized to improve the performance of queries.
 
 
 ### Step 4: Customization & Extensibility
