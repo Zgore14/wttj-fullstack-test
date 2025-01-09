@@ -16,18 +16,59 @@ For development:
 
 - Elixir 1.17.2-otp-27
 - Erlang 27.0.1
-- Postgresql 17
 - Nodejs 20.11.0
 - Yarn
+- Docker 27.4.0 (_for lauching demo only_)
+- PostgreSQL 17
 
-For demo only:
-- Docker
+You can use [`asdf`](https://asdf-vm.com/guide/getting-started.html) to install the required versions of elixir, erlang and nodejs easily.
+
+Simply run:
+
+```bash
+asdf install
+```
 
 ## Launch Demo
 
-TODO
+There is an available bash script to launch the demo quickly.
+The script is available at the root of the project, under the name `start_demo.sh`.
 
-> If any error occurs when launching, please try to launch the project by following the `Getting started for development` section below.
+To simplify the launch of the project, this script create a Docker container for the the database and launch all the required commands for the project.
+**But you still have to match all the requirements above before launching the demo (except PostgreSQL).**
+
+First make sure the script is exececutable by running:
+
+```bash
+chmod +x start_demo.sh
+```
+
+Then, you can launch the demo by running:
+```bash
+./start_demo.sh
+```
+
+> Note that the scripts will reset the database at each launch to have a clean database each time.
+
+You can now access the application at `http://localhost:4000/` and you should see the homepage:
+![Homepage](./docs/home_page_screen.png)
+
+You can click on the Job "Full Stack Developer" to see the details of the job and the candidates:
+
+![JobShow](./docs/jop_show_page.png)
+
+You can now drag and drop candidates to change their status et re-order them as you want (Step 1.).
+Also, you can open multiple tab and repeat the previous steps in your browser to visualize the real-time changes (Step 2.).
+
+
+After your are done with the demo, you can stop it by running `CTRL+C` and run the following commands to remove the database container:
+
+```bash
+docker stop wttj-postgres
+docker rm wttj-postgres
+```
+
+> If any error occurs when launching the demo this way, please try to launch the project by following the `Getting started for development` section below.
 
 ## Getting started for development
 
